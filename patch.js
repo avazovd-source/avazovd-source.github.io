@@ -1,4 +1,4 @@
-/* Інвентаризація голосом — патч v6: склади, e-mail, ручне коригування; артикул + кількість без паузи; штрих-коди */
+/* Інвентаризація голосом — патч v7: сірий інтерфейс, вибір дати, таблиця останніх записів; склади, e-mail, ручне коригування; артикул + кількість без паузи; штрих-коди */
 (function(){
 var DIG={'нуль':0,'ноль':0,'один':1,'одна':1,'раз':1,'два':2,'дві':2,'три':3,'чотири':4,'четыре':4,'пять':5,'шість':6,'шесть':6,'сім':7,'семь':7,'вісім':8,'восемь':8,'девять':9};
 var byKey=null;
@@ -87,6 +87,35 @@ window.__inv={pending:null,YEL:YEL,
     if(wq&&a.unit==='кг'){inp.value=String(wq).replace('.',',');document.querySelector('#scq+.hint').textContent='Вага з етикетки: '+inp.value+' кг. Натисніть «Додати» або виправте.'}
     try{inp.focus()}catch(e){}}
 };
+
+/* ---------- v7: стиль, дата, таблиця останніх ---------- */
+(function(){var s=document.createElement('style');s.id='inv7';s.textContent=':root{--bg:light-dark(#ffffff,#121212);--ink:light-dark(#1f1f1f,#ececec);--mut:light-dark(#6b6b6b,#a3a3a3);--line:light-dark(#e2e2e2,#2e2e2e);--card:light-dark(#f4f4f4,#1c1c1c);--sky:light-dark(#4a4a4a,#262626)}header{padding:10px 0 12px}header h1{font-size:19px}.sub{margin-top:6px;font-size:13px;gap:6px}header select,header input,header button{min-height:36px;font-size:15px;padding:4px 8px}header select{background:#fff;color:#1f1f1f}#hstat{font-size:14px!important}.voice{gap:12px;padding:12px 0 6px}#mic{width:64px;height:64px;box-shadow:0 4px 12px rgba(255,122,26,.3)}#mic svg{width:28px;height:28px}.res .big{font-size:18px}body{padding-bottom:calc(33vh + 12px)}#toast{bottom:calc(33vh + 10px)}#recent{position:fixed;left:0;right:0;bottom:0;height:33vh;background:var(--bg);border-top:2px solid var(--line);z-index:8;overflow-y:auto;-webkit-overflow-scrolling:touch}#recent table{width:100%;max-width:760px;margin:0 auto;border-collapse:collapse;font-size:14px}#recent th{position:sticky;top:0;background:var(--card);text-align:left;font-weight:600;padding:6px 8px;font-size:12px;color:var(--mut)}#recent td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}#recent .q{text-align:right;white-space:nowrap;font-weight:600;font-variant-numeric:tabular-nums}#recent tr.ed td{background:#ffe066;color:#111}#dw{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:flex;align-items:flex-end}#dw .sh{width:100%;background:var(--bg);color:var(--ink);border-radius:16px 16px 0 0;padding:10px 14px 18px}#dw .bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}#dw .cols{position:relative;display:flex;justify-content:center;gap:4px;height:200px}#dw .col{height:200px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:80px 0;text-align:center}#dw .col::-webkit-scrollbar{display:none}#dw .col div{height:40px;line-height:40px;scroll-snap-align:center;font-size:20px;padding:0 14px;white-space:nowrap}#dw .band{position:absolute;left:8px;right:8px;top:80px;height:40px;border-radius:10px;background:var(--card);border:1px solid var(--line);pointer-events:none;z-index:-1}#dw .cols{z-index:0}';document.head.appendChild(s)})();
+var MON=['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+function h(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fq(n){return String(Math.round(n*1000)/1000).replace('.',',')}
+window.__inv.recent=function(entries){
+  var r=document.getElementById('recent');if(!r){if(!document.body)return;r=document.createElement('div');r.id='recent';r.setAttribute('aria-label','Останні записи');document.body.appendChild(r)}
+  var L=(entries||[]).slice().sort(function(a,b){return b.t-a.t}).slice(0,300);
+  r.innerHTML='<table><thead><tr><th>Артикул</th><th>Назва</th><th class="q">Кількість</th></tr></thead><tbody>'+L.map(function(e){return'<tr'+(e.edited?' class="ed"':'')+'><td>'+h(e.art)+'</td><td>'+h(e.name)+'</td><td class="q">'+fq(e.bad?e.saidQty:e.qty)+' '+h(e.bad?e.said:e.unit)+'</td></tr>'}).join('')+'</tbody></table>';
+  r.scrollTop=0};
+function pad(n){return(n<10?'0':'')+n}
+function openDate(){
+  var st=window.__inv.st;if(!st||document.getElementById('dw'))return;
+  var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(st.sid||''),now=new Date(),Y=m?+m[1]:now.getFullYear(),M=m?+m[2]:now.getMonth()+1,D=m?+m[3]:now.getDate(),y0=now.getFullYear()-2,ys=[];
+  for(var y=y0;y<=now.getFullYear()+1;y++)ys.push(y);
+  function col(id,arr){return'<div class="col" id="'+id+'">'+arr.map(function(x){return'<div>'+x+'</div>'}).join('')+'</div>'}
+  var ds=[];for(var d=1;d<=31;d++)ds.push(d);
+  var o=document.createElement('div');o.id='dw';
+  o.innerHTML='<div class="sh" role="dialog" aria-label="Дата інвентаризації"><div class="bar"><button type="button" id="dwx">Скасувати</button><b>Дата інвентаризації</b><button type="button" id="dwok" class="primary">Готово</button></div><div class="cols"><div class="band"></div>'+col('dwd',ds)+col('dwm',MON)+col('dwy',ys)+'</div></div>';
+  document.body.appendChild(o);
+  function g(id){return document.getElementById(id)}
+  function idx(id,n){return Math.max(0,Math.min(n-1,Math.round(g(id).scrollTop/40)))}
+  g('dwd').scrollTop=(D-1)*40;g('dwm').scrollTop=(M-1)*40;g('dwy').scrollTop=Math.max(0,ys.indexOf(Y))*40;
+  function close(){o.remove()}
+  o.onclick=function(e){if(e.target===o)close()};g('dwx').onclick=close;
+  g('dwok').onclick=function(){var y=ys[idx('dwy',ys.length)],mo=idx('dwm',12)+1,d=idx('dwd',31)+1,mx=new Date(y,mo,0).getDate();if(d>mx)d=mx;
+    var s=y+'-'+pad(mo)+'-'+pad(d);close();if(s===st.sid)return;var moved=st.redate(s);st.toast(moved?'Дату інвентаризації змінено: '+pad(d)+'.'+pad(mo)+'.'+y:'Відкрито інвентаризацію за '+pad(d)+'.'+pad(mo)+'.'+y)}}
+window.__inv.openDate=openDate;
 /* ---------- сканер камери ---------- */
 var LIB='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',libP=null,scanner=null;
 function lib(){if(window.Html5Qrcode)return Promise.resolve();if(!libP)libP=new Promise(function(ok,no){var s=document.createElement('script');s.src=LIB;s.onload=ok;s.onerror=function(){libP=null;no(new Error('не вдалося завантажити сканер — перевірте інтернет'))};document.head.appendChild(s)});return libP}
@@ -111,6 +140,8 @@ function addBtn(){
   if(s&&!s.options.length){WH.forEach(function(x){var o=document.createElement('option');o.value=x.c;o.textContent=x.n;s.appendChild(o)});s.value=wh;
     s.onchange=function(){try{localStorage.setItem('inv:wh',s.value)}catch(e){}location.reload()};
     var d=document.getElementById('whs');if(d)d.textContent='Склад у 1С: '+WH.filter(function(x){return x.c===wh})[0].s}
+  var db=document.getElementById('dateB');if(db&&!db.onclick)db.onclick=openDate;
+  if(!document.getElementById('recent'))window.__inv.recent(window.__inv.st?window.__inv.st.entries:[]);
   var mb=document.getElementById('mailb');if(mb&&!mb.onclick)mb.onclick=function(){window.__inv.send()};
   var z=document.getElementById('zones');if(!z||document.getElementById('scanb'))return;
   var b=document.createElement('button');b.type='button';b.id='scanb';b.className='primary';b.style.cssText='width:100%;margin:10px 0 2px;min-height:52px;font-size:17px;border-radius:12px';
