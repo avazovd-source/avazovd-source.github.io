@@ -4,14 +4,15 @@
 <script>
 (async function(){
 var BASE='https://raw.githubusercontent.com/avazovd-source/avazovd-source.github.io/26cb0ec6392b704ca34974fc8f534945bf7855bd/index.html';
-var V='4';
+var V='5';
 var R=[
 ['const part=queue.shift();const p=parsePhrase(part);if(!p.nameWs.length)continue;',
  'const part=queue.shift();if(await window.__inv.pre(part,{parsePhrase,norm,ARTS,commit,esc,$}))continue;const p=parsePhrase(part);if(!p.nameWs.length){await window.__inv.bare(p,{commit});continue}'],
 ['const p=parsePhrase(part);if(p.qty==null||!p.nameWs.length)return;processed=v;handle(part)}',
  'if(!window.__inv.ready(part,{parsePhrase,norm,ARTS}))return;processed=v;handle(part)}'],
 ['Скажіть: назва або артикул, кількість, одиниця. Кілька позицій — через «далі».',
- 'Скажіть артикул (5 знаків) і одразу кількість: «5 3 1 8 2, 8,370 кілограмів». Або назву й кількість.'],
+ 'Скажіть артикул (5 знаків) і одразу кількість: «5 3 1 8 2, 8,370 кілограмів». Або назву й кількість. Або скануйте штрих-код.'],
+['const queue=[];let busy=false;','const queue=[];let busy=false;window.__inv.api={parsePhrase,norm,ARTS,commit,esc,$};'],
 ['</head>','<script src="patch.js?v='+V+'"><\/script></head>']
 ];
 try{
