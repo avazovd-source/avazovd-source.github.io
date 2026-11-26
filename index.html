@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Інвентаризація голосом</title>
+<title>ВИРОБНИЦТВА_ІНВЕНТА</title><meta name="description" content="Інвентаризація голосом: кулінарія, м’ясо, риба. Голос, штрих-код, ручне введення."><meta property="og:type" content="website"><meta property="og:url" content="https://avazovd-source.github.io/"><meta property="og:site_name" content="ВИРОБНИЦТВА_ІНВЕНТА"><meta property="og:title" content="ВИРОБНИЦТВА_ІНВЕНТА — інвентаризація голосом"><meta property="og:description" content="Кулінарія · М’ясо · Риба. Голос, штрих-код, ручне введення."><meta property="og:image" content="https://avazovd-source.github.io/preview.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://avazovd-source.github.io/preview.png"><meta name="apple-mobile-web-app-title" content="ВИРОБНИЦТВА_ІНВЕНТА"><link rel="apple-touch-icon" href="icon.png"><link rel="icon" type="image/png" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -65,7 +65,7 @@ ul.list{list-style:none;margin:0;padding:0}
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);max-width:420px;width:92vw}
 textarea{width:100%;min-height:160px;font:13px/1.4 ui-monospace,monospace}
 @media(max-width:600px){header h1{font-size:26px}#mic{width:80px;height:80px}.voice{gap:12px}}
-</style><script src="data.js?v=10"></script><script src="patch.js?v=10"></script></head><body>
+</style><script src="data.js?v=11"></script><script src="patch.js?v=11"></script></head><body>
 <header><div class="wrap">
 <h1>Інвентаризація</h1><div class="sub"><label for="wh">Склад:</label><select id="wh" aria-label="Склад інвентаризації"></select><span id="whs" style="font-size:13px"></span></div>
 <div class="sub"><label for="sess">Інвентаризація:</label><select id="sess"></select><button class="hbtn" id="dateB" type="button">Змінити дату</button><button class="hbtn" id="newS" type="button">Нова</button><span id="who"></span></div>
@@ -85,7 +85,7 @@ textarea{width:100%;min-height:160px;font:13px/1.4 ui-monospace,monospace}
 <nav role="tablist"><button role="tab" data-t="done" aria-selected="true">Внесено <span id="cDone"></span></button><button role="tab" data-t="all">Усі артикули</button><button role="tab" data-t="left">Не пораховано <span id="cLeft"></span></button></nav>
 <div class="tools"><input id="q" type="search" placeholder="Пошук: назва або артикул" aria-label="Пошук"><select id="kind" aria-label="Тип"><option value="">Сировина і н/ф</option><option value="нф">Лише н/ф</option><option value="с">Лише сировина</option><option value="all">Усе, з готовою продукцією</option></select></div>
 <ul class="list" id="list"></ul>
-<div class="foot"><span class="hint" style="flex-basis:100%">Версія 10 · веб</span><button class="primary" id="exp" type="button">Надіслати / зберегти файл (CSV)</button><button id="copy" type="button">Копіювати таблицею</button><span id="mailbox" style="display:none;flex-basis:100%;gap:8px;flex-wrap:wrap"><input id="mailto" type="email" autocapitalize="off" placeholder="Кому надіслати (e-mail)" aria-label="E-mail одержувача" style="flex:1 1 220px"><button id="mailb" type="button" class="primary">Надіслати на e-mail</button></span><span class="hint" id="stat"></span></div>
+<div class="foot"><span class="hint" style="flex-basis:100%">Версія 11 · веб</span><button class="primary" id="exp" type="button">Надіслати / зберегти файл (CSV)</button><button id="copy" type="button">Копіювати таблицею</button><span id="mailbox" style="display:none;flex-basis:100%;gap:8px;flex-wrap:wrap"><input id="mailto" type="email" autocapitalize="off" placeholder="Кому надіслати (e-mail)" aria-label="E-mail одержувача" style="flex:1 1 220px"><button id="mailb" type="button" class="primary">Надіслати на e-mail</button></span><span class="hint" id="stat"></span></div>
 </main>
 <div id="toast" role="status"><span id="tmsg"></span><button id="undo" type="button">Скасувати</button></div>
 <dialog id="dlg"><p>Скопіюйте вручну:</p><textarea id="dtext" readonly></textarea><button id="dclose" type="button">Закрити</button></dialog>
