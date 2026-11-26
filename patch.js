@@ -52,7 +52,7 @@ window.__inv={pending:null,YEL:YEL,
   openMail:function(){var st=this.st;if(!st||document.getElementById('mm'))return;
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.me)){st.toast('Спершу введіть свій e-mail у полі «Ім’я або e-mail»');var wi=document.getElementById('whoI');try{wi.focus()}catch(e){}return}
     this.mail();var mbx=document.getElementById('mailbox'),hold=document.getElementById('mailhold'),o=document.createElement('div');o.id='mm';o.className='mqo';
-    o.innerHTML='<div class="bx" role="dialog" aria-label="Надіслати на e-mail"><b>Надіслати на e-mail</b><div class="hint">Копія прийде на '+h(st.me)+'</div><div id="mmb" style="margin-top:10px"></div><div class="bt"><button type="button" id="mmx">Закрити</button></div></div>';
+    o.innerHTML='<div class="bx" role="dialog" aria-label="Надіслати на e-mail"><b>Надіслати на e-mail</b><div class="hint">Копія прийде на '+h(st.me)+'</div><div class="hint">CSV-файл додається до листа автоматично. Після натискання оберіть «Пошта» і вставте адресу в поле «Кому» — вона вже буде скопійована.</div><div id="mmb" style="margin-top:10px"></div><div class="bt"><button type="button" id="mmx">Закрити</button></div></div>';
     document.body.appendChild(o);document.getElementById('mmb').appendChild(mbx);mbx.style.display='flex';
     function close(){mbx.style.display='none';if(hold)hold.appendChild(mbx);o.remove()}
     this.closeMail=close;document.getElementById('mmx').onclick=close;o.onclick=function(e){if(e.target===o)close()};
@@ -63,6 +63,13 @@ window.__inv={pending:null,YEL:YEL,
     var T=st.totals(),rows=[],n=0;st.ARTS.forEach(function(a){var x=T.get(a.art);if(!x||(!x.q&&!x.bad.length))return;n++;rows.push(a.art+'; '+a.name+'; '+String(Math.round(x.q*1000)/1000).replace('.',',')+' '+a.unit+(x.list.some(function(e){return e.edited})?'; скориговано вручну':''))});
     if(!n){st.toast('Ще нічого не внесено');return}
     var subj='Інвентаризація '+this.whName()+' '+(st.sid||''),body='Склад: '+this.whName()+'\nІнвентаризація: '+(st.sid||'')+'\nРахував: '+st.me+'\nПозицій: '+n+'\n\nАртикул; Назва; Кількість\n'+rows.join('\n')+'\n';
+    var fn='TSD_'+this.whCode()+'_'+(st.sid||'')+'.csv',file=null;try{file=new File([st.csv()],fn,{type:'text/csv'})}catch(e){}
+    if(file&&navigator.canShare&&navigator.share&&navigator.canShare({files:[file]})){
+      try{navigator.clipboard.writeText(to).catch(function(){})}catch(e){}
+      if(this.closeMail){this.closeMail();this.closeMail=null}
+      navigator.share({files:[file],title:subj,text:'Кому: '+to+'\nСклад: '+this.whName()+'\nІнвентаризація: '+(st.sid||'')+'\nРахував: '+st.me+'\nПозицій: '+n+'\nТаблиця у вкладенні: '+fn}).catch(function(){});
+      st.toast('CSV додано. Оберіть «Пошта» і вставте адресу в «Кому» — вона скопійована');return}
+    if(file){try{var u=URL.createObjectURL(file),al=document.createElement('a');al.href=u;al.download=fn;document.body.appendChild(al);al.click();al.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000);body+='\nФайл '+fn+' збережено в завантаженнях — прикріпіть його до листа.\n'}catch(e){}}
     var url='mailto:'+encodeURIComponent(to)+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
     if(url.length>30000){url='mailto:'+encodeURIComponent(to)+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent('Склад: '+this.whName()+'\nПозицій: '+n+'\nТаблиця у вкладенні (CSV) — прикріпіть файл, який щойно збережено.\n');document.getElementById('exp').click()}
     if(this.closeMail){this.closeMail();this.closeMail=null}
