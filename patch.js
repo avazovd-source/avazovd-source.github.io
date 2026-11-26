@@ -5,7 +5,7 @@ var byKey=null;
 var BC={},PF={};
 (window.__BCS||'').split(';').forEach(function(x){var i=x.indexOf(':');if(i<0)return;var a=x.slice(0,i);x.slice(i+1).split(',').forEach(function(c){BC[c]=a})});
 (window.__PFS||'').split(';').forEach(function(x){var i=x.indexOf(':');if(i>0)PF[x.slice(i+1)]=x.slice(0,i)});
-var WH=[{c:'k',n:'Кулінарія виробництво',f:'Kulinaria',s:'Кулинария Межигорская'},{c:'m',n:'М’ясо виробництво',f:'Miaso',s:'М’ясний цех, Межигірська, 82'},{c:'r',n:'Риба виробництво',f:'Ryba',s:'Рыба М82 сырье'}];
+var WH=[{c:'k',n:'Кулінарія виробництво',f:'Kulinaria',s:'Кулинария Межигорская',to:['protsenko.a@goodwine.ua','burukova.i@goodwine.ua','ilienko.y@goodwine.ua']},{c:'m',n:'М’ясо виробництво',f:'Miaso',s:'М’ясний цех, Межигірська, 82',to:['lemesh.n@goodwine.ua','shylan.s@goodwine.ua']},{c:'r',n:'Риба виробництво',f:'Ryba',s:'Рыба М82 сырье',to:['kozakov.d@goodwine.ua']}];
 var wh='k';try{var w0=localStorage.getItem('inv:wh');if(w0&&WH.some(function(x){return x.c===w0}))wh=w0}catch(e){}
 var KIND={'с':'с','н':'нф','г':'гп'},YEL='background:#ffe066;color:#111;border-radius:6px;';
 function find(api,code){if(!byKey){byKey=new Map();api.ARTS.forEach(function(a){byKey.set(a.key,a)})}return byKey.get(code)}
@@ -48,7 +48,7 @@ window.__inv={pending:null,YEL:YEL,
     function save(ev){ev.stopPropagation();var v=parseFloat(inp.value.replace(',','.'));if(!(v>=0))return;if(e.orig==null)e.orig=e.bad?e.saidQty:e.qty;if(v===e.qty&&!e.bad){st.save();return}e.qty=v;e.bad=false;e.said=e.unit;e.edited=true;st.save();st.toast(e.name+': виправлено на '+String(v).replace('.',',')+' '+e.unit)}
     ok.onclick=save;inp.onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();save(ev)}};
     try{inp.focus();inp.select()}catch(x){}},
-  mail:function(){var t=document.getElementById('mailto');if(t&&!t.value){try{t.value=JSON.parse(localStorage.getItem('inv:mailto'))||''}catch(e){}}},
+  mail:function(){var t=document.getElementById('mailto');if(!t)return;t.type='text';t.setAttribute('inputmode','email');t.placeholder='Кому (e-mail, кілька — через кому)';if(!t.value){var v='';try{v=JSON.parse(localStorage.getItem('inv:mailto:'+wh))||''}catch(e){}t.value=v||(WH.filter(function(x){return x.c===wh})[0].to||[]).join(', ')}},
   openMail:function(){var st=this.st;if(!st||document.getElementById('mm'))return;
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.me)){st.toast('Спершу введіть свій e-mail у полі «Ім’я або e-mail»');var wi=document.getElementById('whoI');try{wi.focus()}catch(e){}return}
     this.mail();var mbx=document.getElementById('mailbox'),hold=document.getElementById('mailhold'),o=document.createElement('div');o.id='mm';o.className='mqo';
@@ -57,21 +57,21 @@ window.__inv={pending:null,YEL:YEL,
     function close(){mbx.style.display='none';if(hold)hold.appendChild(mbx);o.remove()}
     this.closeMail=close;document.getElementById('mmx').onclick=close;o.onclick=function(e){if(e.target===o)close()};
     try{document.getElementById('mailto').focus()}catch(e){}},
-  send:function(){var st=this.st,t=document.getElementById('mailto'),to=(t.value||'').trim();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){st.toast('Вкажіть e-mail одержувача');try{t.focus()}catch(e){}return}
-    try{localStorage.setItem('inv:mailto',JSON.stringify(to))}catch(e){}
+  send:function(){var st=this.st,t=document.getElementById('mailto'),re=/^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/,L=(t.value||'').split(/[,;\s]+/).filter(Boolean),to=L.join(',');
+    if(!L.length||L.some(function(x){return!re.test(x)})){st.toast('Перевірте e-mail одержувачів');try{t.focus()}catch(e){}return}
+    try{localStorage.setItem('inv:mailto:'+wh,JSON.stringify(L.join(', ')))}catch(e){}
     var T=st.totals(),rows=[],n=0;st.ARTS.forEach(function(a){var x=T.get(a.art);if(!x||(!x.q&&!x.bad.length))return;n++;rows.push(a.art+'; '+a.name+'; '+String(Math.round(x.q*1000)/1000).replace('.',',')+' '+a.unit+(x.list.some(function(e){return e.edited})?'; скориговано вручну':''))});
     if(!n){st.toast('Ще нічого не внесено');return}
     var subj='Інвентаризація '+this.whName()+' '+(st.sid||''),body='Склад: '+this.whName()+'\nІнвентаризація: '+(st.sid||'')+'\nРахував: '+st.me+'\nПозицій: '+n+'\n\nАртикул; Назва; Кількість\n'+rows.join('\n')+'\n';
     var fn='TSD_'+this.whCode()+'_'+(st.sid||'')+'.csv',file=null;try{file=new File([st.csv()],fn,{type:'text/csv'})}catch(e){}
     if(file&&navigator.canShare&&navigator.share&&navigator.canShare({files:[file]})){
-      try{navigator.clipboard.writeText(to).catch(function(){})}catch(e){}
+      try{navigator.clipboard.writeText(L.join(', ')).catch(function(){})}catch(e){}
       if(this.closeMail){this.closeMail();this.closeMail=null}
-      navigator.share({files:[file],title:subj,text:'Кому: '+to+'\nСклад: '+this.whName()+'\nІнвентаризація: '+(st.sid||'')+'\nРахував: '+st.me+'\nПозицій: '+n+'\nТаблиця у вкладенні: '+fn}).catch(function(){});
+      navigator.share({files:[file],title:subj,text:'Кому: '+L.join(', ')+'\nСклад: '+this.whName()+'\nІнвентаризація: '+(st.sid||'')+'\nРахував: '+st.me+'\nПозицій: '+n+'\nТаблиця у вкладенні: '+fn}).catch(function(){});
       st.toast('CSV додано. Оберіть «Пошта» і вставте адресу в «Кому» — вона скопійована');return}
     if(file){try{var u=URL.createObjectURL(file),al=document.createElement('a');al.href=u;al.download=fn;document.body.appendChild(al);al.click();al.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000);body+='\nФайл '+fn+' збережено в завантаженнях — прикріпіть його до листа.\n'}catch(e){}}
-    var url='mailto:'+encodeURIComponent(to)+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-    if(url.length>30000){url='mailto:'+encodeURIComponent(to)+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent('Склад: '+this.whName()+'\nПозицій: '+n+'\nТаблиця у вкладенні (CSV) — прикріпіть файл, який щойно збережено.\n');document.getElementById('exp').click()}
+    var url='mailto:'+L.map(encodeURIComponent).join(',')+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    if(url.length>30000){url='mailto:'+L.map(encodeURIComponent).join(',')+'?cc='+encodeURIComponent(st.me)+'&subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent('Склад: '+this.whName()+'\nПозицій: '+n+'\nТаблиця у вкладенні (CSV) — прикріпіть файл, який щойно збережено.\n');document.getElementById('exp').click()}
     if(this.closeMail){this.closeMail();this.closeMail=null}
     location.href=url},
   pre:async function(part,api){
