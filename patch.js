@@ -156,7 +156,7 @@ function addBtn(){
   if(ft&&hw&&ft.parentNode!==hw){
     var mbx=document.getElementById('mailbox');if(mbx){var f2=document.createElement('div');f2.style.cssText='display:flex;padding:14px 0 20px';ft.parentNode.insertBefore(f2,ft);f2.appendChild(mbx)}
     hw.insertBefore(ft,hw.firstChild);ft.id='topbar';
-    var vh=ft.querySelector('.hint');if(vh)vh.style.cssText='';
+    var vh=ft.querySelector('.hint');if(vh){vh.style.cssText='';vh.textContent=vh.textContent.replace(/Версія\s*(\d+).*/,'v$1')}
     var ex=document.getElementById('exp'),cp=document.getElementById('copy');
     if(ex){ex.setAttribute('aria-label','Надіслати або зберегти файл CSV');ex.textContent='CSV';ex.className='hbtn'}
     if(cp){cp.setAttribute('aria-label','Копіювати таблицею');cp.textContent='Копіювати';cp.className='hbtn'}}
